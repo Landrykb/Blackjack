@@ -1,0 +1,179 @@
+import random
+import emoji
+
+from art import logo
+print(logo)
+
+print("Welcome to Blackjack casino!! I am the dealer...")
+print("card shuffling...")
+
+simple_deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 3, 4, 5, 6, 7, 8,
+               9, 10,
+               "Ace", "K", "Q", "J", "Ace", "K", "Q", "J", "Ace", "K", "Q", "J", "Ace", "K", "Q", "J"]
+
+blackjack_double_deck = simple_deck + simple_deck
+blackjack_4_deck = blackjack_double_deck + blackjack_double_deck
+blackjack_6_deck = blackjack_4_deck + blackjack_4_deck
+
+cards = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
+player_hand = []
+dealer_hand = []
+
+
+# deal the cards
+def get_bank_balance(bank_fund, betting, gain):
+    """display bank balance after betting and after gains"""
+    bank_fund -= betting
+    bank_fund += gain
+    print(f"Bank balance: {bank_fund}")
+
+
+def get_starting_cards():
+    """dealing starting card to  each player (face up cards)"""
+    for n in range(0, 1):
+        player_hand.append(blackjack_6_deck[n])
+        blackjack_6_deck.remove(blackjack_6_deck[n])
+        dealer_hand.append(blackjack_6_deck[n + 1])
+        blackjack_6_deck.remove(blackjack_6_deck[n + 1])
+
+
+def get_card_player():
+    """deal additional card for player"""
+    player_hand.append(blackjack_6_deck[0])
+    simple_deck.remove(blackjack_6_deck[0])
+
+
+def get_card_dealer():
+    """deal additional card dealer"""
+    dealer_hand.append(blackjack_6_deck[0])
+    blackjack_6_deck.remove(blackjack_6_deck[0])
+
+
+def get_card_value():
+    """replace each card by its value Ex: Ace = 11, 2 = 2 etc."""
+    for i in range(len(player_hand)):
+        if player_hand[i] in ["K", "Q", "J"]:
+            player_hand[i] = 10
+        elif player_hand[i] in ["Ace"]:
+            player_hand[i] = 11
+            if sum(player_hand) > 21:
+                player_hand[i] = 1
+        else:
+            player_hand[i] = player_hand[i]
+
+    for j in range(len(dealer_hand)):
+        if dealer_hand[j] in ["K", "Q", "J"]:
+            dealer_hand[j] = 10
+        elif dealer_hand[j] in ["Ace"]:
+            dealer_hand[j] = 11
+            if sum(dealer_hand) > 21:
+                dealer_hand[j] = 1
+        else:
+            dealer_hand[j] = dealer_hand[j]
+
+
+def check_score_and_stop_deal(player, dealer):
+    """Display score and checking winning conditions"""
+    print(f"Player: {sum(player_hand)}\nDealer: {sum(dealer_hand)}")
+    if dealer < player <= 21:
+        print("You WIN \N{money-mouth face}")
+    elif player <= 21 and dealer > 21:
+        print("You WIN \N{money-mouth face}")
+    elif player == dealer:
+        print("PUSH! Rien ne va plus! \N{face with rolling eyes}")
+    elif player > 21:
+        print("BUST!! \N{neutral face}")
+    elif player == 21 and len(player_hand) == 2:
+        print(f"BLACKJACK! \N{money-mouth face}")
+    elif dealer == 21:
+        print("You LOSE. House WINS \N{expressionless face}")
+    else:
+        print("You LOSE. \N{unamused face}")
+
+
+another_game = True
+while another_game:
+    play_blackjack = input("Are you  ready to entertain me? Type  'y' for  yes and 'n' for no: ")
+
+    if play_blackjack != "y":
+        print("Thank you for playing. See you next time...")
+        another_game = False
+    else:
+        another_game
+
+        bank = 0
+        try_again = True
+        while bank < 100:
+            try_again
+            bank = int(input("How much do you want to put in the 'Blackjack Fund Jar? $100, $200, $300, $500?: "))
+            print("You can only start with a $100!")
+            if bank >= 100:
+                print("Your funds have been secured!")
+                try_again = False
+
+        bet = int(input("How much $ do you want to bet? "))
+        gains = 0
+        get_bank_balance(bank_fund=bank, betting=bet, gain=gains)
+        random.shuffle(blackjack_6_deck)
+        print("card shuffling...")
+        player_hand = []
+        dealer_hand = []
+        get_starting_cards()
+        print(f"{player_hand} vs {dealer_hand}")
+
+        get_card_player()
+        get_card_dealer()
+        for card in range(len(dealer_hand)):
+            hidden_dealer_hand = [dealer_hand[0], "**"]
+        print(f"{player_hand} vs {hidden_dealer_hand}")
+
+        continue_deal = True
+        get_card_value()
+        while sum(player_hand) < 21 and sum(dealer_hand) < 17:
+            get_card_value()
+            hit_double_stand = input("Hit, Double or Stand?  'h' for hit, 'd' for Double, and 's' for Stand: ")
+            if hit_double_stand == "h":
+                get_card_player()
+                get_card_dealer()
+                print(f"{player_hand}  vs {dealer_hand}")
+                get_card_value()
+                continue_deal
+
+            elif hit_double_stand == "d":
+                bet += bet
+                get_bank_balance(bank_fund=bank, betting=bet, gain=gains)
+                get_card_player()
+                get_card_dealer()
+                print(f"{player_hand} vs {dealer_hand}")
+                get_card_value()
+                continue_deal
+
+            elif hit_double_stand == "s":
+                get_card_dealer()
+                print(f"{player_hand} vs {dealer_hand}")
+                get_card_value()
+                continue_deal
+            elif sum(dealer_hand) < 21 and sum(player_hand) < 21:
+                continue_deal
+            else:
+                print(f"{player_hand} vs {dealer_hand}")
+                get_card_value()
+                continue_deal = False
+
+        check_score_and_stop_deal(player=sum(player_hand), dealer=sum(dealer_hand))
+        if sum(dealer_hand) < sum(player_hand) <= 21:
+            gains = bet * 2
+        elif sum(player_hand) > 21:
+            gains = 0
+        elif sum(player_hand) == 21:
+            gains = bet + (bet * 1.5)
+        elif sum(player_hand) == sum(dealer_hand):
+            gains = bet
+        elif sum(dealer_hand) > 21 and sum(player_hand) < 21:
+            gains = bet * 2
+        else:
+            gains = -bet
+
+        print(f"Your gains : ${gains}")
+        get_bank_balance(bank_fund=bank, betting=bet, gain=gains)
+
